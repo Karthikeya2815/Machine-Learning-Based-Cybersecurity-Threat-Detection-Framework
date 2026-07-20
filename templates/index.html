@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI CyberThreat Detection System</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="brand">
+                <i class="fa-solid fa-shield-halved brand-icon"></i>
+                <div class="brand-text">
+                    <h1>AEGIS AI</h1>
+                    <span>THREAT DETECTOR</span>
+                </div>
+            </div>
+            <nav class="nav-menu">
+                <button class="nav-item active" onclick="switchTab('dashboard')">
+                    <i class="fa-solid fa-chart-line"></i> Dashboard
+                </button>
+                <button class="nav-item" onclick="switchTab('network')">
+                    <i class="fa-solid fa-network-wired"></i> Network Traffic
+                </button>
+                <button class="nav-item" onclick="switchTab('malware')">
+                    <i class="fa-solid fa-virus-slash"></i> Malware Analyzer
+                </button>
+                <button class="nav-item" onclick="switchTab('phishing')">
+                    <i class="fa-solid fa-envelope-open-text"></i> Phishing Scanner
+                </button>
+                <button class="nav-item" onclick="switchTab('metrics')">
+                    <i class="fa-solid fa-gears"></i> Model Metrics
+                </button>
+            </nav>
+            <div class="system-status">
+                <div class="status-pulse-container">
+                    <span class="status-dot online"></span>
+                    <span class="status-pulse online"></span>
+                </div>
+                <div>
+                    <h4>AI Engine Active</h4>
+                    <p>All models online</p>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="content-header">
+                <div class="title-section">
+                    <h2 id="page-title">Threat Detection Center</h2>
+                    <p id="page-subtitle">Overview of network and system threat profiles</p>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-outline" id="retrain-btn" onclick="retrainModels()">
+                        <i class="fa-solid fa-arrows-rotate"></i> Retrain AI
+                    </button>
+                    <div class="datetime" id="live-clock">--:--:--</div>
+                </div>
+            </header>
+
+            <!-- Dashboard Tab -->
+            <section id="tab-dashboard" class="tab-pane active">
+                <div class="grid-stats">
+                    <div class="stat-card">
+                        <div class="stat-icon-wrapper cyan">
+                            <i class="fa-solid fa-microchip"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Autoencoder</h3>
+                            <div class="value">99.0%</div>
+                            <p>Threshold Precision</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon-wrapper green">
+                            <i class="fa-solid fa-bug"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Malware Classifier</h3>
+                            <div class="value">100 Trees</div>
+                            <p>Random Forest Forest Size</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon-wrapper pink">
+                            <i class="fa-solid fa-paper-plane"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Phishing Scanner</h3>
+                            <div class="value">1,000</div>
+                            <p>TF-IDF Max Features</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid-layout">
+                    <div class="card card-wide">
+                        <div class="card-header">
+                            <h3><i class="fa-solid fa-wave-square"></i> Real-time Network Anomaly Score Feed</h3>
+                            <span class="badge badge-success">Live Feed</span>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="networkDashboardChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <h3><i class="fa-solid fa-circle-info"></i> Security Advisory</h3>
+                        </div>
+                        <div class="advisory-content">
+                            <div class="advisory-item warning">
+                                <i class="fa-solid fa-triangle-exclamation"></i>
+                                <div>
+                                    <h4>Dynamic Threat Modeling</h4>
+                                    <p>Our MLP-based autoencoder evaluates structural reconstruction errors to flag unseen zero-day network packets.</p>
+                                </div>
+                            </div>
+                            <div class="advisory-item info">
+                                <i class="fa-solid fa-circle-nodes"></i>
+                                <div>
+                                    <h4>Isolation Forest Backup</h4>
+                                    <p>Isolation Forest works alongside the autoencoder to isolate highly multi-dimensional anomaly clusters in real-time.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Network Traffic Tab -->
+            <section id="tab-network" class="tab-pane">
+                <div class="grid-layout">
+                    <div class="card card-wide">
+                        <div class="card-header">
+                            <h3><i class="fa-solid fa-list-check"></i> Monitored Traffic Log</h3>
+                            <button class="btn btn-sm btn-cyan" onclick="simulateNewNetworkPackets()">
+                                <i class="fa-solid fa-plus"></i> Inject Traffic
+                            </button>
+                        </div>
+                        <div class="table-wrapper">
+                            <table class="data-table" id="network-table">
+                                <thead>
+                                    <tr>
+                                        <th>Protocol</th>
+                                        <th>Service</th>
+                                        <th>Flag</th>
+                                        <th>Bytes Sent</th>
+                                        <th>Bytes Recv</th>
+                                        <th>Duration (s)</th>
+                                        <th>Anomaly Score</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Populated dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Malware Tab -->
+            <section id="tab-malware" class="tab-pane">
+                <div class="grid-layout-2-1">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3><i class="fa-solid fa-sliders"></i> PE Header Feature Parameters</h3>
+                        </div>
+                        <form id="malware-form" class="cyber-form" onsubmit="analyzeMalware(event)">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>File Size (Bytes)</label>
+                                    <input type="number" id="filesize" value="500000" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Num Sections</label>
+                                    <input type="number" id="num_sections" value="5" min="1" max="50" required>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Num Imports</label>
+                                    <input type="number" id="num_imports" value="120" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Num Exports</label>
+                                    <input type="number" id="num_exports" value="12" required>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Entry Point Entropy</label>
+                                    <input type="number" id="entry_point_entropy" step="0.01" value="4.25" min="0" max="8" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Avg Section Entropy</label>
+                                    <input type="number" id="avg_section_entropy" step="0.01" value="3.80" min="0" max="8" required>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group checkbox-group">
+                                    <label class="cyber-checkbox-label">
+                                        <input type="checkbox" id="contains_packer_sig">
+                                        <span class="custom-checkbox"></span> Contains Packer Signature
+                                    </label>
+                                </div>
+                                <div class="form-group checkbox-group">
+                                    <label class="cyber-checkbox-label">
+                                        <input type="checkbox" id="has_digital_signature" checked>
+                                        <span class="custom-checkbox"></span> Has Digital Signature
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group checkbox-group">
+                                    <label class="cyber-checkbox-label">
+                                        <input type="checkbox" id="has_tls_callback">
+                                        <span class="custom-checkbox"></span> Has TLS Callback
+                                    </label>
+                                </div>
+                                <div class="form-group checkbox-group">
+                                    <label class="cyber-checkbox-label">
+                                        <input type="checkbox" id="has_anti_debug">
+                                        <span class="custom-checkbox"></span> Has Anti-Debugging Tricks
+                                    </label>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-cyan btn-full">
+                                <i class="fa-solid fa-shield-virus"></i> Analyze PE Header features
+                            </button>
+                        </form>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3><i class="fa-solid fa-square-poll-vertical"></i> Analysis Result</h3>
+                        </div>
+                        <div class="result-placeholder" id="malware-result-placeholder">
+                            <i class="fa-solid fa-virus-covid result-icon"></i>
+                            <p>Submit PE headers to predict malicious content score</p>
+                        </div>
+                        <div class="result-box hidden" id="malware-result-box">
+                            <div class="score-circle-container">
+                                <svg class="progress-ring" width="160" height="160">
+                                    <circle class="progress-ring__circle-bg" stroke="#1b253b" stroke-width="12" fill="transparent" r="70" cx="80" cy="80"/>
+                                    <circle class="progress-ring__circle" id="malware-gauge" stroke="#00e676" stroke-width="12" fill="transparent" r="70" cx="80" cy="80"/>
+                                </svg>
+                                <div class="score-display">
+                                    <span class="score-num" id="malware-prob">0%</span>
+                                    <span class="score-label">Confidence</span>
+                                </div>
+                            </div>
+                            <div class="status-banner" id="malware-banner">
+                                <h4 id="malware-status-txt">BENIGN</h4>
+                            </div>
+                            <div class="metadata-log">
+                                <p><strong>Model Engine:</strong> Random Forest Classifier</p>
+                                <p><strong>Confidence:</strong> <span id="malware-meta-conf">0.0%</span></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Phishing Tab -->
+            <section id="tab-phishing" class="tab-pane">
+                <div class="grid-layout-2-1">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3><i class="fa-solid fa-keyboard"></i> Email Text Input</h3>
+                        </div>
+                        <form id="phishing-form" class="cyber-form" onsubmit="analyzePhishing(event)">
+                            <div class="form-group">
+                                <label>Email Content</label>
+                                <textarea id="email_content" rows="10" placeholder="Paste email content here to scan for urgent phrasing, suspicious domains, links, and text patterns..." required></textarea>
+                            </div>
+                            <div class="shortcut-templates">
+                                <span class="template-chip" onclick="fillEmailTemplate('phishing1')">Phishing Account Urgent Alert</span>
+                                <span class="template-chip" onclick="fillEmailTemplate('phishing2')">Phishing Prize Claim</span>
+                                <span class="template-chip" onclick="fillEmailTemplate('legit')">Legitimate Team Meeting</span>
+                            </div>
+                            <button type="submit" class="btn btn-cyan btn-full">
+                                <i class="fa-solid fa-magnifying-glass-shield"></i> Run Phishing Classifier
+                            </button>
+                        </form>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3><i class="fa-solid fa-square-poll-vertical"></i> Phishing Scanner Result</h3>
+                        </div>
+                        <div class="result-placeholder" id="phishing-result-placeholder">
+                            <i class="fa-solid fa-envelope-shield result-icon"></i>
+                            <p>Submit email text to run TF-IDF random forest classification</p>
+                        </div>
+                        <div class="result-box hidden" id="phishing-result-box">
+                            <div class="score-circle-container">
+                                <svg class="progress-ring" width="160" height="160">
+                                    <circle class="progress-ring__circle-bg" stroke="#1b253b" stroke-width="12" fill="transparent" r="70" cx="80" cy="80"/>
+                                    <circle class="progress-ring__circle" id="phishing-gauge" stroke="#ff1744" stroke-width="12" fill="transparent" r="70" cx="80" cy="80"/>
+                                </svg>
+                                <div class="score-display">
+                                    <span class="score-num" id="phishing-prob">0%</span>
+                                    <span class="score-label">Spam probability</span>
+                                </div>
+                            </div>
+                            <div class="status-banner" id="phishing-banner">
+                                <h4 id="phishing-status-txt">LEGITIMATE</h4>
+                            </div>
+                            <div class="indicators-list">
+                                <h4>Extracted NLP Features</h4>
+                                <div class="indicator-row" id="ind-urgent">
+                                    <span>Urgent Language Keywords</span>
+                                    <i class="fa-solid fa-circle-xmark status-off"></i>
+                                </div>
+                                <div class="indicator-row" id="ind-links">
+                                    <span>IP Address/Suspicious Domain Links</span>
+                                    <i class="fa-solid fa-circle-xmark status-off"></i>
+                                </div>
+                                <div class="indicator-row" id="ind-password">
+                                    <span>Password/Credential Requests</span>
+                                    <i class="fa-solid fa-circle-xmark status-off"></i>
+                                </div>
+                                <div class="indicator-row" id="ind-money">
+                                    <span>Financial/Banking terminology</span>
+                                    <i class="fa-solid fa-circle-xmark status-off"></i>
+                                </div>
+                                <div class="indicator-row" id="ind-spell">
+                                    <span>Frequent spelling mistakes</span>
+                                    <i class="fa-solid fa-circle-xmark status-off"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Metrics Tab -->
+            <section id="tab-metrics" class="tab-pane">
+                <div class="grid-layout-2-1">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3><i class="fa-solid fa-chart-bar"></i> Classifier Performance Breakdown</h3>
+                        </div>
+                        <div class="metrics-grid">
+                            <div class="metric-progress-item">
+                                <div class="metric-meta">
+                                    <span>Network Autoencoder Precision</span>
+                                    <span class="percent">99.0%</span>
+                                </div>
+                                <div class="bar-container">
+                                    <div class="bar-fill cyan" style="width: 99%"></div>
+                                </div>
+                            </div>
+                            <div class="metric-progress-item">
+                                <div class="metric-meta">
+                                    <span>Malware Random Forest Accuracy</span>
+                                    <span class="percent">96.8%</span>
+                                </div>
+                                <div class="bar-container">
+                                    <div class="bar-fill green" style="width: 96.8%"></div>
+                                </div>
+                            </div>
+                            <div class="metric-progress-item">
+                                <div class="metric-meta">
+                                    <span>Phishing Vectorizer Accuracy</span>
+                                    <span class="percent">95.4%</span>
+                                </div>
+                                <div class="bar-container">
+                                    <div class="bar-fill pink" style="width: 95.4%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <h3><i class="fa-solid fa-database"></i> Model Information</h3>
+                        </div>
+                        <div class="model-info-list">
+                            <div class="info-item">
+                                <span class="label">Autoencoder Input Shape</span>
+                                <span class="value" id="info-ae-shape">13 features</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="label">Autoencoder Reconstruct Threshold</span>
+                                <span class="value" id="info-ae-thresh">Calculating...</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="label">Malware RF Classifier size</span>
+                                <span class="value" id="info-mw-trees">100 Estimators</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="label">Phishing vocabulary Size</span>
+                                <span class="value" id="info-ph-vocab">1000 features</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
